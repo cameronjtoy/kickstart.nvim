@@ -89,9 +89,8 @@ P.S. You can delete this when you're done too. It's your config now! :)
 --  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
 vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
-
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -102,7 +101,7 @@ vim.g.have_nerd_font = false
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
 --  Experiment for yourself to see if you like it!
--- vim.opt.relativenumber = true
+vim.opt.relativenumber = true
 
 -- Enable mouse mode, can be useful for resizing splits for example!
 vim.opt.mouse = 'a'
@@ -256,6 +255,28 @@ require('lazy').setup({
     },
   },
 
+  -- using lazy.nvim
+  { 'akinsho/bufferline.nvim', version = '*', dependencies = 'nvim-tree/nvim-web-devicons' },
+
+  {
+    -- other plugins
+    {
+      'nvim-treesitter/nvim-treesitter',
+      build = ':TSUpdate',
+      config = function()
+        require('nvim-treesitter.configs').setup {
+          -- List of parsers to install
+          ensure_installed = { 'lua', 'python', 'javascript', 'html', 'css' },
+          highlight = {
+            enable = true, -- false will disable the whole extension
+            additional_vim_regex_highlighting = false,
+          },
+          -- Add any other module configurations here
+        }
+      end,
+    },
+  },
+
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
   --
   -- This is often very useful to both group configuration, as well as handle
@@ -321,6 +342,7 @@ require('lazy').setup({
         { '<leader>w', group = '[W]orkspace' },
         { '<leader>t', group = '[T]oggle' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
+        -- Adding descriptions for specific commands under <leader>c
       },
     },
   },
@@ -437,6 +459,21 @@ require('lazy').setup({
     end,
   },
 
+  {
+    'tpope/vim-commentary',
+    lazy = false, -- Optional: set to true if you want to load only when needed
+  },
+
+  {
+    'github/copilot.vim',
+    config = function()
+      -- Optional: Disable default <Tab> mapping if you want to use a custom keybinding
+      vim.g.copilot_no_tab_map = true
+      -- Set a custom keybinding to accept suggestions (for example, <C-J>)
+      vim.api.nvim_set_keymap('i', '<C-J>', 'copilot#Accept("<CR>")', { silent = true, expr = true })
+    end,
+  },
+
   -- LSP Plugins
   {
     -- `lazydev` configures Lua LSP for your Neovim config, runtime and plugins
@@ -452,19 +489,19 @@ require('lazy').setup({
   },
   { 'Bilal2453/luvit-meta', lazy = true },
   {
-    -- Main LSP Configuration
+    -- main lsp configuration
     'neovim/nvim-lspconfig',
     dependencies = {
-      -- Automatically install LSPs and related tools to stdpath for Neovim
-      { 'williamboman/mason.nvim', config = true }, -- NOTE: Must be loaded before dependants
+      -- automatically install lsps and related tools to stdpath for neovim
+      { 'williamboman/mason.nvim', config = true }, -- note: must be loaded before dependants
       'williamboman/mason-lspconfig.nvim',
-      'WhoIsSethDaniel/mason-tool-installer.nvim',
+      'whoissethdaniel/mason-tool-installer.nvim',
 
-      -- Useful status updates for LSP.
-      -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
+      -- useful status updates for lsp.
+      -- note: `opts = {}` is the same as calling `require('fidget').setup({})`
       { 'j-hui/fidget.nvim', opts = {} },
 
-      -- Allows extra capabilities provided by nvim-cmp
+      -- allows extra capabilities provided by nvim-cmp
       'hrsh7th/cmp-nvim-lsp',
     },
     config = function()
@@ -829,13 +866,15 @@ require('lazy').setup({
     -- change the command in the config to whatever the name of that colorscheme is.
     --
     -- If you want to see what colorschemes are already installed, you can use `:Telescope colorscheme`.
-    'folke/tokyonight.nvim',
+    --'folke/tokyonight.nvim',
+    'olimorris/onedarkpro.nvim',
     priority = 1000, -- Make sure to load this before all the other start plugins.
     init = function()
       -- Load the colorscheme here.
       -- Like many other themes, this one has different styles, and you could load
       -- any other, such as 'tokyonight-storm', 'tokyonight-moon', or 'tokyonight-day'.
-      vim.cmd.colorscheme 'tokyonight-night'
+      --vim.cmd.colorscheme 'tokyonight-night'
+      vim.cmd.colorscheme 'onedark'
 
       -- You can configure highlights by doing something like:
       vim.cmd.hi 'Comment gui=none'
@@ -882,30 +921,17 @@ require('lazy').setup({
       --  Check out: https://github.com/echasnovski/mini.nvim
     end,
   },
-  { -- Highlight, edit, and navigate code
-    'nvim-treesitter/nvim-treesitter',
-    build = ':TSUpdate',
-    main = 'nvim-treesitter.configs', -- Sets main module to use for opts
-    -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
-    opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
-      -- Autoinstall languages that are not installed
-      auto_install = true,
-      highlight = {
-        enable = true,
-        -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
-        --  If you are experiencing weird indenting issues, add the language to
-        --  the list of additional_vim_regex_highlighting and disabled languages for indent.
-        additional_vim_regex_highlighting = { 'ruby' },
+
+  {
+    {
+      'nvim-tree/nvim-tree.lua',
+      dependencies = {
+        'nvim-tree/nvim-web-devicons', -- optional for file icons
       },
-      indent = { enable = true, disable = { 'ruby' } },
+      config = function()
+        require('nvim-tree').setup {}
+      end,
     },
-    -- There are additional nvim-treesitter modules that you can use to interact
-    -- with nvim-treesitter. You should go explore a few and see what interests you:
-    --
-    --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
-    --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
-    --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
   },
 
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
@@ -951,6 +977,63 @@ require('lazy').setup({
     },
   },
 })
+
+-- Bufferline setup
+require('bufferline').setup {
+  options = {
+    mode = 'buffers',
+    numbers = 'none',
+    close_command = 'bdelete! %d',
+    right_mouse_command = 'bdelete! %d',
+    left_mouse_command = 'buffer %d',
+    middle_mouse_command = nil,
+    indicator = {
+      icon = '▎',
+      style = 'icon',
+    },
+    buffer_close_icon = '',
+    modified_icon = '●',
+    close_icon = '',
+    left_trunc_marker = '',
+    right_trunc_marker = '',
+    max_name_length = 18,
+    max_prefix_length = 15,
+    tab_size = 18,
+    diagnostics = 'nvim_lsp',
+    diagnostics_update_in_insert = false,
+    offsets = { { filetype = 'NvimTree', text = 'File Explorer', text_align = 'left' } },
+    show_buffer_icons = true,
+    show_buffer_close_icons = true,
+    show_close_icon = true,
+    show_tab_indicators = true,
+    persist_buffer_sort = true,
+    separator_style = 'thin',
+    enforce_regular_tabs = true,
+    always_show_bufferline = true,
+  },
+}
+
+-- Keymaps for bufferline
+vim.keymap.set('n', '<leader><Tab>', '<Cmd>BufferLineCycleNext<CR>', {})
+vim.keymap.set('n', '<leader><S-Tab>', '<Cmd>BufferLineCyclePrev<CR>', {})
+vim.keymap.set('n', '<leader>c', '<Cmd>bd<CR>', {})
+vim.api.nvim_set_keymap('n', '<leader>st', ':NvimTreeToggle<CR>', { noremap = true, silent = true })
+
+-- Helper functions to open nvim-tree and enter create mode for files and directories
+local api = require 'nvim-tree.api'
+
+-- Keybinding to create a new file
+vim.keymap.set('n', '<leader>cf', function()
+  api.tree.open() -- Open nvim-tree if it's not open
+  vim.cmd 'normal a' -- Trigger "a" to enter create mode
+end, { noremap = true, silent = true })
+
+-- Keybinding to create a new directory
+vim.keymap.set('n', '<leader>cd', function()
+  api.tree.open() -- Open nvim-tree if it's not open
+  vim.cmd 'normal a' -- Trigger "a" to enter create mode
+  vim.api.nvim_feedkeys('/', 'n', true) -- Start input with "/" to create a directory
+end, { noremap = true, silent = true })
 
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
