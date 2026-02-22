@@ -342,7 +342,10 @@ require('lazy').setup({
         { '<leader>w', group = '[W]orkspace' },
         { '<leader>t', group = '[T]oggle' },
         { '<leader>h', group = 'Git [H]unk', mode = { 'n', 'v' } },
-        -- Adding descriptions for specific commands under <leader>c
+
+        -- new groups
+        { '<leader>b', group = '[B]uffer' },
+        { '<leader>e', group = '[E]xplorer' },
       },
     },
   },
@@ -464,15 +467,15 @@ require('lazy').setup({
     lazy = false, -- Optional: set to true if you want to load only when needed
   },
 
-  {
-    'github/copilot.vim',
-    config = function()
-      -- Optional: Disable default <Tab> mapping if you want to use a custom keybinding
-      vim.g.copilot_no_tab_map = true
-      -- Set a custom keybinding to accept suggestions (for example, <C-J>)
-      vim.api.nvim_set_keymap('i', '<C-J>', 'copilot#Accept("<CR>")', { silent = true, expr = true })
-    end,
-  },
+  -- {
+  --   'github/copilot.vim',
+  --   config = function()
+  --     -- Optional: Disable default <Tab> mapping if you want to use a custom keybinding
+  --     vim.g.copilot_no_tab_map = true
+  --     -- Set a custom keybinding to accept suggestions (for example, <C-J>)
+  --     vim.api.nvim_set_keymap('i', '<C-J>', 'copilot#Accept("<CR>")', { silent = true, expr = true })
+  --   end,
+  -- },
 
   -- LSP Plugins
   {
@@ -1013,27 +1016,22 @@ require('bufferline').setup {
   },
 }
 
--- Keymaps for bufferline
-vim.keymap.set('n', '<leader><Tab>', '<Cmd>BufferLineCycleNext<CR>', {})
-vim.keymap.set('n', '<leader><S-Tab>', '<Cmd>BufferLineCyclePrev<CR>', {})
-vim.keymap.set('n', '<leader>c', '<Cmd>bd<CR>', {})
-vim.api.nvim_set_keymap('n', '<leader>st', ':NvimTreeToggle<CR>', { noremap = true, silent = true })
+-- Buffer navigation
+vim.keymap.set('n', '<leader>bn', '<Cmd>BufferLineCycleNext<CR>', { desc = '[B]uffer [N]ext' })
+vim.keymap.set('n', '<leader>bp', '<Cmd>BufferLineCyclePrev<CR>', { desc = '[B]uffer [P]revious' })
+vim.keymap.set('n', '<leader>bd', '<Cmd>bdelete<CR>', { desc = '[B]uffer [D]elete' })
+vim.keymap.set('n', '<leader>te', ':NvimTreeToggle<CR>', { noremap = true, silent = true, desc = '[T]oggle File [E]xplorer' })
 
 -- Helper functions to open nvim-tree and enter create mode for files and directories
 local api = require 'nvim-tree.api'
 
--- Keybinding to create a new file
-vim.keymap.set('n', '<leader>cf', function()
-  api.tree.open() -- Open nvim-tree if it's not open
-  vim.cmd 'normal a' -- Trigger "a" to enter create mode
-end, { noremap = true, silent = true })
+vim.keymap.set('n', '<leader>ef', function()
+  api.tree.open()
+  vim.cmd 'normal a'
+end, { desc = '[E]xplorer New [F]ile', noremap = true, silent = true })
 
--- Keybinding to create a new directory
-vim.keymap.set('n', '<leader>cd', function()
-  api.tree.open() -- Open nvim-tree if it's not open
-  vim.cmd 'normal a' -- Trigger "a" to enter create mode
-  vim.api.nvim_feedkeys('/', 'n', true) -- Start input with "/" to create a directory
-end, { noremap = true, silent = true })
-
--- The line beneath this is called `modeline`. See `:help modeline`
--- vim: ts=2 sts=2 sw=2 et
+vim.keymap.set('n', '<leader>ed', function()
+  api.tree.open()
+  vim.cmd 'normal a'
+  vim.api.nvim_feedkeys('/', 'n', true)
+end, { desc = '[E]xplorer New [D]irectory', noremap = true, silent = true })
